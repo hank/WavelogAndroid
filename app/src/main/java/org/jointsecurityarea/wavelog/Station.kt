@@ -1,5 +1,7 @@
 package org.jointsecurityarea.wavelog
 
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import com.google.gson.annotations.*
 
 data class Station (
@@ -9,6 +11,12 @@ data class Station (
     @SerializedName("station_callsign") val callsign: String,
     @SerializedName("station_active") val active: Boolean = false
 )
+
+@Composable
+fun StationCard(s: Station) {
+    Text(s.id.toString())
+    Text(s.name)
+}
 
 /*
 [
