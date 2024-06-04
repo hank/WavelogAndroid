@@ -1,22 +1,30 @@
 package org.jointsecurityarea.wavelog
 
 import android.os.Bundle
+import android.util.Log
+import android.util.Log.DEBUG
 import android.view.Menu
-import com.google.android.material.snackbar.Snackbar
-import com.google.android.material.navigation.NavigationView
+import android.widget.Button
+import androidx.appcompat.app.AppCompatActivity
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-import androidx.drawerlayout.widget.DrawerLayout
-import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.navigation.NavigationView
+import com.google.android.material.snackbar.Snackbar
 import org.jointsecurityarea.wavelog.databinding.ActivityMainBinding
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import java.io.IOException
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
+    private val TAG = "MainActivity"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,6 +48,41 @@ class MainActivity : AppCompatActivity() {
                 R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow), drawerLayout)
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
+
+        // User Code
+        Log.i(TAG, "Starting App")
+
+        val button = findViewById<Button>(R.id.button)
+        button.setOnClickListener {
+            val call = ApiClient.apiService.getStations(RetrofitClient.API_KEY)
+
+            call.enqueue(object : Callback<List<Station>> {
+                override fun onResponse(call: Call<List<Station>>, response: Response<List<Station>>) {
+                    if (response.isSuccessful) {
+                        val stationinfo = response.body()
+                        // Handle the retrieved post data
+                        Log.i(TAG, "Success! ${stationinfo.toString()}")
+                        //Toast.makeText(this@MainActivity, "Success! ${stationinfo.toString()}", Toast.LENGTH_SHORT).show()
+                    } else {
+                        // Handle error
+                        Log.i(TAG, "Error: ${response.errorBody()}")
+                        //Toast.makeText(this@MainActivity, "Error: ${response.errorBody()}", Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+                override fun onFailure(call: Call<List<Station>>, t: Throwable) {
+                    // Handle failure
+                    if (t is IOException) {
+                        Log.i(TAG, "Network failure")
+                    }
+                    else
+                    {
+                        Log.i(TAG, "Conversion Error")
+                    }
+                    //Toast.makeText(this@MainActivity, "Request Fail", Toast.LENGTH_SHORT).show()
+                }
+            })
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
