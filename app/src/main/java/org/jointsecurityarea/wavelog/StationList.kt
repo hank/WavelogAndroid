@@ -3,7 +3,9 @@ package org.jointsecurityarea.wavelog
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.material3.Text
@@ -22,12 +24,13 @@ import retrofit2.Response
 import java.io.IOException
 
 @Composable
-fun StationsList(viewModel: StationViewModel) {
+fun StationsList(viewModel: StationViewModel, innerPadding: PaddingValues) {
     val agentsData = viewModel.stationsData.collectAsState()
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(10.dp),
         modifier = Modifier
             .fillMaxSize()
+            .padding(paddingValues = innerPadding)
     ) {
         items(count = agentsData.value.size) {
             StationCard(agentsData.value[it])
@@ -42,10 +45,10 @@ class StationViewModel : ViewModel() {
     val stationsData : StateFlow<List<Station>> = _stationsData
 
     init{
-        retrieveAgentsData()
+        retrieveStationData()
     }
 
-    private fun retrieveAgentsData(){
+    private fun retrieveStationData(){
         viewModelScope.launch {
             val call : Call<List<Station>> = ApiClient.apiService.getStations(RetrofitClient.API_KEY)
             call.enqueue(object : Callback<List<Station>> {
